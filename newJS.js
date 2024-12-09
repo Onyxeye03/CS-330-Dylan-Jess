@@ -1,11 +1,11 @@
 function Canvas(width, height, locID) {
     // Initialization of the canvas and WebGL context
     if (width == undefined || width < 0) {
-        width = 300;
+        width = 500;
     }
 
     if (height == undefined || height < 0) {
-        height = 300;
+        height = 500;
     }
 
     var canvas = document.createElement('canvas')
@@ -28,7 +28,6 @@ function Canvas(width, height, locID) {
     this.height = height;
     this.width = width;
 
-    // new stuff
     var gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) {
         alert("WebGL isn't available");
@@ -36,7 +35,7 @@ function Canvas(width, height, locID) {
 
     this.gl = gl;
 
-    gl.viewport(0, 0, width, height);
+   gl.viewport(0, 0, width, height);
 
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
@@ -46,8 +45,13 @@ function Canvas(width, height, locID) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
 
     vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
+   if (vPosition < 0) {
+       console.error("Could not find attribute vPosition");
+       // Handle the error appropriately, e.g., stop execution or provide a user message.
+       return; // Or throw an error
+   }
+   gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+   gl.enableVertexAttribArray(vPosition);
 
     // A buffer for the colors/texture coordinates
     this.cBuffer = gl.createBuffer();
