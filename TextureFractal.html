@@ -3,7 +3,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <title>Fractals Final Project</title>
-    
+    <!--Shaders taken from previous labs-->
+   
     <img id = "texImage" src = "./Common/Carpet.jpg" hidden></img>
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec4 vPosition;
@@ -52,16 +53,14 @@
 
 <body>
     <h1>A Sierpinski Gasket With Triangles</h1>
-
     <script>
-        var WIDTH = 500;
-        var HEIGHT = 500;
+    console.log("Event listener loaded");
         var canvas;
 
         window.addEventListener("load", function(event) {
             // Initialize the canvas once the window is loaded
-            canvas = new Canvas(WIDTH, HEIGHT);
-            document.getElementById('DepthBox').value = canvas.GetDepth();
+            //canvas = new Canvas(WIDTH, HEIGHT);
+            //document.getElementById('DepthBox').value = canvas.GetDepth();
 
             // Ensure that the button correctly references the canvas object
             document.getElementById('useImage').addEventListener('click', function() {
@@ -82,7 +81,8 @@
             id="DepthBox" onchange="canvas.ChangeDepth(this.value)">
     </p>
 
-    <!-- Button to switch between color and image texture -->
+    <!-- Button to switch between color and image texture 
+     Not currently working-->
     <button id="useImage">Switch to Texture/Color</button>
 
 </body>
