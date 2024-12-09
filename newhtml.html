@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Fractals Final Project</title>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec4 vPosition;
+        attribute vec2 vTexCoord;
+        varying vec2 fTexCoord;
+
+        void main() {
+            gl_Position = vPosition;
+            fTexCoord = vTexCoord;
+        }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform sampler2D texture;
+        uniform int mode; // 0 for color, 1 for texture
+        varying vec2 fTexCoord;
+
+        void main() {
+            if (mode == 0) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Default to red for color mode
+            } else {
+                gl_FragColor = texture2D(texture, fTexCoord); // Use texture for texture mode
+            }
+        }
+    </script>
+
+    <script type="text/javascript" src="./webgl-utils.js"></script>
+    <script type="text/javascript" src="./initShaders.js"></script>
+    <script type="text/javascript" src="./MV.js"></script>
+    <script type="text/javascript" src="./SepTriCanvas.js"></script>
+
+    <style>
+        input {
+            text-align: right;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>A Sierpinski Gasket With Triangles</h1>
+
+    <script>
+        var WIDTH = 500;
+        var HEIGHT = 500;
+        var canvas;
+
+        window.addEventListener("load", function(event) {
+            // Initialize the canvas once the window is loaded
+            canvas = new Canvas(WIDTH, HEIGHT);
+            document.getElementById('DepthBox').value = canvas.GetDepth();
+
+            // Ensure that the button correctly references the canvas object
+            document.getElementById('useImage').addEventListener('click', function() {
+                canvas.switchToImage(); // Toggle between color and texture
+            });
+        });
+
+    </script>
+
+    <p>
+        Depth
+        <input
+            type="text"
+            name="Depth"
+            maxLength="5"
+            size="5"
+            value=""
+            id="DepthBox" onchange="canvas.ChangeDepth(this.value)">
+    </p>
+
+    <!-- Button to switch between color and image texture -->
+    <button id="useImage">Switch to Texture/Color</button>
+
+</body>
+</html>
