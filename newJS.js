@@ -1,10 +1,11 @@
 function Canvas(width, height, locID) {
+    console.log("Function canvas loaded");
     // Initialization of the canvas and WebGL context
     if (width == undefined || width < 0) {
-        width = 300;
+        width = 500;
     }
     if (height == undefined || height < 0) {
-        height = 300;
+        height = 500;
     }
     var canvas = document.createElement('canvas')
     canvas.height = height;
@@ -31,12 +32,14 @@ function Canvas(width, height, locID) {
     gl.viewport(0, 0, width, height);
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
+
     // Buffers and attributes setup for vertices and colors (or texture coordinates)
     this.vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
     vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+
     // A buffer for the colors/texture coordinates
     this.cBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
@@ -48,6 +51,7 @@ function Canvas(width, height, locID) {
     texCoordAttribute = gl.getAttribLocation(program, "vTexCoord");
     gl.vertexAttribPointer(texCoordAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(texCoordAttribute);
+    
     // This will hold the mode (color or texture)
     this.colorMode = true; // true for color, false for texture
     this.maxDepth = 1;

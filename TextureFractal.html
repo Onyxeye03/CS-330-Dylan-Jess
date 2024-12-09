@@ -52,22 +52,21 @@
 </head>
 
 <body>
-    <h2></h2>
+    <h2>Sierpinski Gasket</h2>
     <script>
-    console.log("Event listener loaded");
+        var WIDTH = 500;
+        var HEIGHT = 500;
         var canvas;
-
+        console.log("Event Listener Loaded");
         window.addEventListener("load", function(event) {
             // Initialize the canvas once the window is loaded
-            //canvas = new Canvas(WIDTH, HEIGHT);
-            //document.getElementById('DepthBox').value = canvas.GetDepth();
-
+            canvas = new Canvas(WIDTH, HEIGHT);
+            document.getElementById('DepthBox').value = canvas.GetDepth();
             // Ensure that the button correctly references the canvas object
             document.getElementById('useImage').addEventListener('click', function() {
                 canvas.switchToImage(); // Toggle between color and texture
             });
         });
-
     </script>
 
     <p>
