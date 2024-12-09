@@ -53,17 +53,28 @@ Canvas.prototype = {
         this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         this.RestartList();
     },
-    RestartList: function () {
+    RestartList: function (useColor = true, image = null) {
         this.currentDepth = 1;
-        var p1 = vec2(-0.8, -0.8);
-        var p2 = vec2(0, .8);
-        var p3 = vec2(0.8, -0.8);
-        this.vertex = [p1, p2, p3];
-        var c1 = vec3(Math.random(), Math.random(), Math.random());
-        var c2 = vec3(Math.random(), Math.random(), Math.random());
-        var c3 = vec3(Math.random(), Math.random(), Math.random());
-        this.colors = [c1, c2, c3];
-        this.MakePoints();
+        this.useColor = useColor;
+        //this.image = textImage; // Assuming you have an image object or path
+
+        // Define initial triangle vertices
+
+        // Generate random colors for each vertex (if using color mode)
+        this.colors = useColor ? [
+            vec2(-0.8, -0.8),
+            vec2(0, 0.8),
+            vec2(0.8, -0.8)
+        ].map(() => vec3(Math.random(), Math.random(), Math.random())) : null;
+
+        // Assign initial vertices and call recursive subdivision
+        this.vertex = [
+            vec2(-0.8, -0.8),
+            vec2(0, 0.8),
+            vec2(0.8, -0.8)
+        ];
+        this.MakePoints(this.maxDepth, this.vertex, this.colors);
+
         this.UpdateBuffers();
         this.Redisplay();
     },
