@@ -1,18 +1,30 @@
-function Canvas(width = 500, height = 500, locID) {
-    //From previous labs
+function Canvas(width, height, locID) {
     console.log("Function canvas loaded");
-
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-
-    const parent = locID ? document.getElementById(locID) : document.body;
-    parent.appendChild(canvas);
+    // Initialization of the canvas and WebGL context
+    if (width == undefined || width < 0) {
+        width = 500;
+    }
+    if (height == undefined || height < 0) {
+        height = 500;
+    }
+    var canvas = document.createElement('canvas')
     
+    canvas.height = height;
+    canvas.width = width;
+    if (locID == undefined) {
+        document.body.appendChild(canvas);
+    } else {
+        div = document.getElementById(locID);
+        if (null == div) {
+            document.body.appendChild(canvas);
+        } else {
+            div.appendChild(canvas);
+        }
+    }
     document.body.appendChild(canvas);
     this.height = height;
     this.width = width;
-    
+    // new stuff
     var gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) {
         alert("WebGL isn't available");
@@ -21,15 +33,14 @@ function Canvas(width = 500, height = 500, locID) {
     gl.viewport(0, 0, width, height);
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
-    
-    //From previous labs
+
     // Buffers and attributes setup for vertices and colors (or texture coordinates)
     this.vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
     vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
-    //From previous labs
+
     // A buffer for the colors/texture coordinates
     this.cBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
@@ -52,7 +63,11 @@ Canvas.prototype = {
     Init: function () {
         this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         this.RestartList();
+        //var texCoords = document.getElementById("image");
+        //this.loadTexture();//load the texture
     },
+
+
     RestartList: function () {
         this.currentDepth = 1;
         var p1 = vec2(-0.8, -0.8);
@@ -77,6 +92,7 @@ Canvas.prototype = {
             gl.bindBuffer(this.gl.ARRAY_BUFFER, this.cBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, flatten(this.colors), gl.DYNAMIC_DRAW);
         } else {
+            var texCoords = document.getElementById("Image");//added
             gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
             // Add the texture coordinates (dummy for now, can be adjusted)
             var texCoords = [
@@ -90,6 +106,8 @@ Canvas.prototype = {
     GetDepth: function () {
         return this.maxDepth;
     },
+
+    
     ChangeDepth: function (newDepth) {
         var depth = parseInt(newDepth);
         if (depth < 1) {
@@ -136,52 +154,48 @@ Canvas.prototype = {
     },
 
     MakePoints: function () {
-        const subdivideTriangle = (a, b, c, depth, parentColor, vertexArray, colorArray) => {
-            if (depth <= 0) {
-                return;
+        var newVertex = [];
+        var newColors = [];
+        var a, b, c;
+        var p1, p2, p3;
+
+        if (this.currentDepth < this.maxDepth) {
+            this.currentDepth++;
+
+            for (i = 0; i < this.vertex.length; i += 3) {
+                a = this.vertex[i];
+                b = this.vertex[i + 1];
+                c = this.vertex[i + 2];
+
+                p1 = this.HalfPoint(a, b, .5);
+                p2 = this.HalfPoint(a, c, .5);
+                p3 = this.HalfPoint(b, c, .5);
+
+                this.AddTri(a, p1, p2, newVertex, this.colors[i], newColors);
+                this.AddTri(b, p1, p3, newVertex, this.colors[i + 1], newColors);
+                this.AddTri(c, p2, p3, newVertex, this.colors[i + 2], newColors);
             }
+            this.vertex = newVertex;
+            this.colors = newColors;
 
-            const p1 = this.HalfPoint(a, b);
-            const p2 = this.HalfPoint(a, c);
-            const p3 = this.HalfPoint(b, c);
-
-            // Assign colors to the new triangles
-            const color1 = parentColor;
-            const color2 = vec3(Math.random(), Math.random(), Math.random());
-            const color3 = vec3(Math.random(), Math.random(), Math.random());
-
-            // Add new vertices and colors to the arrays
-            vertexArray.push(a, p1, p2, b, p1, p3, c, p2, p3);
-            colorArray.push(color1, color2, color3, color2, color3, color1);
-
-            subdivideTriangle(a, p1, p2, depth - 1, color1, vertexArray, colorArray);
-            subdivideTriangle(b, p1, p3, depth - 1, color2, vertexArray, colorArray);
-            subdivideTriangle(c, p2, p3, depth - 1, color3, vertexArray, colorArray);
-        };
-
-        subdivideTriangle(this.vertex[0], this.vertex[1], this.vertex[2], this.maxDepth, this.colors[0], this.vertex, this.colors);
-        this.UpdateBuffers();
-        this.Redisplay();
+            this.MakePoints();
+        }
     },
 
     Redisplay: function () {
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        const gl = this.gl;//added
+        const modeLocation = gl.getUniformLocation(program, "mode");//added
+        gl.uniform1i(modeLocation, this.colorMode ? 0 : 1); // 0 for color, 1 for texture
+    
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertex.length);
 
-        // Bind vertex buffer
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.vertex), this.gl.STATIC_DRAW);
-
-        // Bind color buffer
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.colors), this.gl.STATIC_DRAW);
-
-        // Set vertex and color attributes
-        // ... (attribute setup code)
-
-        this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertex.length);
+        return;
     },
 
-    // Switch between color and texture mode
+
+    
+  // Switch between color and texture mode
     switchToImage: function () {
         this.colorMode = !this.colorMode; // Toggle between color and texture mode
         this.RestartList();
